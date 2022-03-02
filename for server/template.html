@@ -1,0 +1,284 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=7" />
+	<title>“青年大学习”第十三季</title>
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="format-detection" content="telephone=no">
+
+	<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js"></script>
+
+	<script>
+		if (!window.jQuery)
+			document.write('&lt;script type="text/javascript" src="http://cdnsite.fjg360.cn/jquery-1.9.1.min.js">&lt;' + '/script>');
+		//http://cdnsite.fjg360.cn/jquery-1.9.1.min.js
+
+		if (navigator.userAgent.toLowerCase().match(/huawei/i) == "huawei") {
+			//转化rem单位
+			(function (doc, win) {
+				var docEl = doc.documentElement,
+					resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+					recalc = function () {
+						var clientWidth = docEl.clientWidth;
+						if (!clientWidth) return;
+						if (clientWidth >= 750) {
+							docEl.style.fontSize = '100px';
+						} else {
+							docEl.style.fontSize = 100 * (clientWidth / 1500) + 'px';
+						}
+						var html = document.getElementsByTagName('html')[0]
+						var settingFs = parseInt(100 * (clientWidth / 1500))
+						var settedFs = settingFs
+						var whileCount = 0
+						while (true) {
+							var realFs = parseInt(window.getComputedStyle(html).fontSize)
+							var delta = realFs - settedFs
+							// 不相等
+							if (Math.abs(delta) >= 1) {
+								if (delta > 0) {
+									settingFs--
+								} else {
+									settingFs++
+								}
+								html.setAttribute('style', 'font-size:' + settingFs + 'px!important')
+							} else {
+								break
+							}
+							if (whileCount++ > 100) {
+								break
+							}
+						}
+					};
+				if (!doc.addEventListener) return;
+				win.addEventListener(resizeEvt, recalc, false);
+				doc.addEventListener('DOMContentLoaded', recalc, false);
+			})(document, window);
+		} else {
+			(function (doc, win) {
+				var docEl = doc.documentElement,
+					resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+					recalc = function () {
+						var clientWidth = docEl.clientWidth;
+						if (!clientWidth) return;
+						if (clientWidth >= 1500) {
+							docEl.style.fontSize = '100px';
+						} else {
+							docEl.style.fontSize = 100 * (clientWidth / 1500) + 'px';
+							var div = document.createElement('div');
+							div.style.width = '1.4rem';
+							div.style.height = '0';
+							document.body.appendChild(div);
+							var ideal = 140 * clientWidth / 1500;
+							var rmd = (div.clientWidth / ideal);
+							if (rmd > 1.2 || rmd &lt; 0.8) {
+								docEl.style.fontSize = 100 * (clientWidth / 1500) / rmd + 'px';
+							}
+							document.body.removeChild(div);
+						};
+					};
+				if (!doc.addEventListener) return;
+				win.addEventListener(resizeEvt, recalc, false);
+				doc.addEventListener('DOMContentLoaded', recalc, false);
+			})(document, window);
+		}
+
+	</script>
+	<script>
+
+
+		$(function () {
+			var size = $(document).width() / 1500;
+			var screen_height = 936 * size * 2;
+			var height = $(document).height();
+			if (screen_height > $(document).height()) {
+				//$('#con').css('height',screen_height);
+			}
+			else {
+				//$('#con').css('height',$(document).height());
+			}
+
+			//$('#con').css('height',$(document).height());
+			$('#con_bind').css('height', $(document).height());
+			$('#cover2').css('height', $(document).height());
+			$('#con').css('height', $(document).height());
+			$('#con_first').css('height', $(document).height());
+			//$('#con').css({'-webkit-transform':'scale(1,' + height/screen_height + ')'});
+			$('#peoples').css('top', 207 * size + 'px');
+			$('#peoples').css('font-size', 20 * size + 'px');
+			$('#date').css('top', 515 * size + 'px');
+			$('#rule1').css('top', 400 * size + 'px');
+			$('#rule1').css('font-size', 22 * size + 'px');
+			$('#rule1').css('line-height', 40 * size + 'px');
+			$('#dialog>div').css('font-size', 22 * size + 'px');
+			$('#dialog>div').css('line-height', 38 * size + 'px');
+			$('#rule2').css('top', 794 * size + 'px');
+			$('#dialog').css('top', 420 * size + 'px');
+			$('#dialog').css('height', 376 * size + 'px');
+			$('#dialog2').css('top', 380 * size + 'px');
+			$('#dialog2').css('height', 376 * size + 'px');
+			$('#dialog2>img').css('height', 476 * size * 1.0 + 'px');
+			$('#btn').css('top', 805 * size + 'px');
+			$('#btn').css('height', 353 * size + 'px');
+
+		})
+	</script>
+	<style>
+		#con {
+			-webkit-transform-origin: top left;
+			-moz-transform-origin: top left;
+			-o-transform-origin: top left;
+			transform-origin: top left;
+		}
+
+		body,
+		html {
+			overflow: hidden;
+		}
+
+		.btn4 {
+			width: 11.71rem;
+			height: 1.77rem;
+			float: left;
+			position: absolute;
+			left: 1.74rem;
+			top: 14.82rem;
+		}
+
+		.clear {
+			clear: both
+		}
+
+		.main {
+			width: 12.1rem;
+			height: 7.23rem;
+			float: left;
+			position: absolute;
+			left: 1.44rem;
+			top: 13rem;
+		}
+
+		.main_title {
+			width: 11.33rem;
+			height: 0.98rem;
+			float: left;
+			margin-left: 0.79rem;
+			margin-top: 0.61rem;
+			color: #333333;
+			font-size: 0.6rem;
+			line-height: 0.97rem;
+			font-weight: bold;
+		}
+
+		.main_forum {
+			width: 11.27rem;
+			height: 1.08rem;
+			float: left;
+			margin-left: 0.79rem;
+			margin-top: 0.25rem;
+			color: #333333;
+			font-size: 0.6rem;
+			line-height: 0.97rem;
+			font-weight: bold;
+		}
+
+		.main_close {
+			width: 11.31rem;
+			height: 0.98rem;
+			float: left;
+			margin-left: 0.79rem;
+			margin-top: 0.19rem;
+			color: #333333;
+			font-size: 0.6rem;
+			line-height: 0.97rem;
+			font-weight: bold;
+		}
+
+		.main_thumbnail {
+			width: 11.34rem;
+			height: 2.69rem;
+			float: left;
+			margin-left: 0.76rem;
+			margin-top: 0.3rem;
+			color: #333333;
+			font-size: 0.6rem;
+			line-height: 0.9rem;
+			font-weight: bold;
+		}
+
+		.forum {
+			width: 3.63rem;
+			height: 1.43rem;
+			float: left;
+			position: absolute;
+			left: 1.93rem;
+			top: 21.45rem;
+		}
+
+		.forum2 {
+			width: 3.63rem;
+			height: 1.43rem;
+			float: left;
+			position: absolute;
+			left: 9.2rem;
+			top: 21.45rem;
+		}
+
+		.aside {
+			width: 3.66rem;
+			height: 1.41rem;
+			float: left;
+			margin-left: 9.34rem;
+			margin-top: 21.46rem;
+		}
+	</style>
+</head>
+
+<body style='margin: 0px; font-family: "微软雅黑"; background-color:#848fa4;'>
+
+	<div id="center_con">
+		<div id='con_bind'
+			style='display:none;width: 100%;  background: url(http://cdnsite.fjg360.cn/18da/back4.png?v=3) no-repeat; background-size: 100%; background-color: #848fa3; overflow: hidden; position: absolute;'>
+
+			<div style="background:white;border-radius:0.5rem;font-size:0.62rem;line-height:1.35rem;text-align:center;color:#ED502E;font-weight:bold;"
+				onclick="edit_next()" id="forum" class="forum">
+				修改信息
+			</div>
+
+			<div style="background:white;border-radius:0.5rem;font-size:0.62rem;line-height:1.35rem;text-align:center;color:#ED502E;font-weight:bold;"
+				onclick="goNext2()" id="forum2" class="forum2">
+				确 &nbsp; 定
+			</div>
+
+			<div id="main" class="main">
+
+				<div id="main_title" class="main_title">
+					当前课程：<span id="now_lesson"></span></div>
+
+				<div id="main_forum" class="main_forum">
+					您的姓名：<span id="now_name"></span></div>
+
+				<div id="main_close" class="main_close">
+					用户编号：<span id="now_id"></span></div>
+
+				<div id="main_thumbnail" class="main_thumbnail">
+					所属单位：<span id="now_company"></span></div>
+			</div>
+		</div>
+
+		<script>
+			$('#con_bind').show();
+			$('#con_first').hide();
+			$('#now_lesson').html("lesson_name");
+			$('#now_name').html(res.h5_ask_member.name);
+			$('#now_id').html(res.h5_ask_member.uid);
+			$('#now_company').html(res.h5_ask_member.danwei1 + res.h5_ask_member.danwei2 + res.h5_ask_member.danwei3);
+
+		</script>
+</body>
+
+</html>
