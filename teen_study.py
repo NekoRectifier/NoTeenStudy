@@ -160,7 +160,7 @@ def get_user_info_pic(course, name, id, company):
 
     data = {
         'url': req_url,  # 不要更改 这是我服务器上提供的图片生成页面
-        'token': 'XXXXXXXXXXX',  # 需替换为自己的screenshotmaster api token
+        'token': '621cf77a17aae',  # 需替换为自己的screenshotmaster api token
         'width': '828',  # 此大小与中青在线提供的完成图片大小一致
         'height': '1366',
         'delay': '50',

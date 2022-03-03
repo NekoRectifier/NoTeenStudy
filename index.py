@@ -1,4 +1,5 @@
 import os.path
+import sys
 from importlib import util
 
 
@@ -9,6 +10,8 @@ def check_module_integrity():
             print('finding...')
     except ImportError as e:
         raise ImportError(f"依赖库不完整, 请使用pip安装\n[{e}]")
+    sys.path.append(os.getcwd())
+    import teen_study
 
 
 def env_clear():
@@ -19,7 +22,7 @@ def env_clear():
 
 
 def submit_info():
-    # TODO 先鸽在这 要去写openid的获取办法
+    
     print('')
 
 
