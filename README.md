@@ -1,5 +1,5 @@
 <h1 align="center">No Teen Study</h1>
-<p align="center">通过获取青年大学习完成图片联合今日校园功能实现全自动提交</p>
+<p align="center">通过获取青年大学习完成图片联合今日校园功能实现全自动提交<b>（适用于青春湖北）</b></p>
 
 
 ## :tada: 功能介绍  
@@ -10,7 +10,7 @@
 
 ## :dart: 使用方法
 
-**有待完善**
+**[在这里](https://github.com/NekoRectifier/NoTeenStudy/wiki)**
 
 ## :rocket: 问题反馈
 
