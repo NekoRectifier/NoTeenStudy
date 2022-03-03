@@ -10,7 +10,7 @@
 
 ## :dart: 使用方法
 
-**有待完善**
+**[在这里](https://github.com/NekoRectifier/NoTeenStudy/wiki)**
 
 ## :rocket: 问题反馈
 
