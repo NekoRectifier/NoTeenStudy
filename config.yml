@@ -1,36 +1,46 @@
-author: 若离|IceTiki|https://github.com/IceTiki/ruoli-sign-optimization
+original-author: 若离|IceTiki|https://github.com/IceTiki/ruoli-sign-optimization
 # YAML有引用和锚点，可以节省配置长度(备注:锚点要放在引用的前面)(可以参考https://www.runoob.com/w3cnote/yaml-intro.html)
 # ======================================================================
 # 全局设置
 # ======================================================================
-locationOffsetRange: 50 # 坐标偏移范围(单位：米)(可以为0)
+locationOffsetRange: 5 # 坐标偏移范围(单位：米)(可以为0)
 maxTry: 1 # 最大尝试次数
 logDir: 'log/' # 日志保存地址
-delay: [5,10] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
+delay: [1,2] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
+
 # ======================================================================
 # 用户组配置(填写自己所需的类型，并删掉不需要的。可以多用户签到。)
 # ======================================================================
+
 users: # ------别误删了这一行------
   - # 信息收集模板=======
     # 通用必填项-------
     type: 0 # 任务类型[信息收集:0|签到:1|查寝:2|教师工作日志:3|政工签到:4]
-    schoolName: 湖北汽车工业学院 # 学校全称
-    username: "202104030" # 学号或者工号
-    password: "hyx.account.pro.HUAT" # 密码
+    schoolName: 家里蹲大学 # 学校全称
+    username: "202202222" # 学号或者工号
+    password: "xxxxxxxxxxxxxxxxx" # 密码
     # 一般需填项-------
     checkTitle: 1 # 是否检查表单的标题（1:检查|0:不检查）
     forms: # 表单信息
       - form:
-          title: 是否在“青春湖北”上完成学习
+          title: 是否在“青春湖北”上学习 #标题
           value: 是 # 如果是多选请用"|"分割值
           isNeed: 1 # 是否需要提交此问题，必填问题一定要填1(1:提交|0:不提交)
       - form:
           title: 请上传登录界面、完成学习截图
-          value: 
-          - personal_info.jpg
-          - finish.jpg
+          value:
+            - personal_info.jpg
+            - finish.jpg
+            # 单张图片可这样写: 'info.png'
+            # 多张图片就这样:
+            # - 1.png
+            # - 2.png
+            # - ...
           isNeed: 1
+
+      # 写' - form '来添加更多问题
+
     # 经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
-    lon: 110.743420 # 经度
-    lat: 32.654961 # 纬度
-    address: "湖北省十堰市张湾区红卫街道炉子北村巷208-1号楼" # 地址信息
+    lon: 115.000000 # 经度
+    lat: 50.000000 # 纬度
+    address: "银河系" # 地址信息

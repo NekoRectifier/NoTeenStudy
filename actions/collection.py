@@ -20,7 +20,7 @@ class Collection:
         self.form = {}
 
     # 上传图片到阿里云oss
-    def uploadPicture(self, picDir):
+    def uploadPicture(self, picDir, suffix):
         url = f'{self.host}wec-counselor-collector-apps/stu/oss/getUploadPolicy'
         res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps({'fileType': 1}),
                                 verify=False)
@@ -34,8 +34,8 @@ class Collection:
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'
         }
         multipart_encoder = MultipartEncoder(
-            fields={  # 这里根据需要进行参数格式设置
-                'key': fileName, 'policy': policy, 'OSSAccessKeyId': accessKeyId, 'success_action_status': '200',
+            fields={  # 这里根据需要进行参数格式设置 这里的suffix是带'.'的
+                'key': fileName + suffix, 'policy': policy, 'OSSAccessKeyId': accessKeyId, 'success_action_status': '200',
                 'signature': signature,
                 'file': ('blob', open(picDir, 'rb'), 'image/jpg')
             })
@@ -155,10 +155,19 @@ class Collection:
                     formItem['value'] = ','.join(itemWidArr)
                 # 图片（健康码）上传类型
                 elif formItem['fieldType'] == '4':
-                    # 如果是传图片的话，那么是将图片的地址（相对/绝对都行）存放于此value中
+                    pic_url = []
+
                     picDir = RT.choicePhoto(userForm['value'])
-                    self.uploadPicture(picDir)
-                    formItem['value'] = self.getPictureUrl()
+
+                    if type(picDir) != list:
+                        self.uploadPicture(picDir, os.path.splitext(picDir)[-1])
+                        formItem['value'] = self.getPictureUrl()
+                    else:
+                        for pic in picDir:
+                            self.uploadPicture(pic, os.path.splitext(pic)[-1])  # 要对上传做稍微修改
+                            pic_url.append(self.getPictureUrl() + '.png')
+                        formItem['value'] = ','.join(pic_url)
+
                     # 填充其他信息
                     formItem.setdefault('http', {
                         'defaultOptions': {

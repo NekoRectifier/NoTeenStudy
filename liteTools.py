@@ -186,17 +186,19 @@ class RT:
 
     @staticmethod
     def choicePhoto(dir):
-        '''从指定路径(路径列表)中随机选取一个图片路径'''
+        """从指定路径(路径列表)中随机选取一个图片路径"""
         if type(dir) == list:
-            dir = random.choice(dir)
+            return dir
+
+        pic_file = []
+
         if os.path.isfile(dir):
             return dir
         else:
-            files = filter(lambda x: x.endswith('.jpg'), os.listdir(dir))
-            files = list(files)
-            if len(files) == 0:
-                raise Exception("路径(%s)指向一个没有图片(.jpg)的文件夹" % dir)
-            return os.path.join(dir, random.choice(files))
+            for file in os.listdir(dir):
+                if (file.endswith('.jpg') | file.endswith('.png')) & os.path.isfile(file):
+                    pic_file.append(file)
+
 
     @staticmethod
     def randomSleep(timeRange: tuple = (5, 7)):

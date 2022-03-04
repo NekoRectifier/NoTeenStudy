@@ -1,6 +1,8 @@
 import os.path
 import sys
 from importlib import util
+import teen_study
+import ruoli_opt
 
 
 def check_module_integrity():
@@ -11,27 +13,20 @@ def check_module_integrity():
     except ImportError as e:
         raise ImportError(f"依赖库不完整, 请使用pip安装\n[{e}]")
     sys.path.append(os.getcwd())
-    import teen_study
 
 
 def env_clear():
-    for file_name in ['teen-study/finish.jpg', 'teen-study/personal_info.jpg']:
+    for file_name in ['finish.jpg', 'personal_info.jpg']:
         if os.path.exists(file_name):
             os.remove(file_name)
             print('del!')
 
 
-def submit_info():
-    
-    print('')
-
-
 def main():
     # 主函数
     check_module_integrity()
-
-
-
+    teen_study.run()
+    ruoli_opt.main()
     # at last
     env_clear()
 

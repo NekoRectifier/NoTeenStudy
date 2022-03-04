@@ -44,12 +44,8 @@ except ImportError as e:
 if True:
     from liteTools import TaskError, RT, DT, LL
     from login.Utils import Utils
-    from actions.teacherSign import teacherSign
     from actions.sendMessage import SendMessage
-    from actions.workLog import workLog
-    from actions.sleepCheck import sleepCheck
     from actions.collection import Collection
-    from actions.autoSign import AutoSign
     from todayLoginService import TodayLoginService
 # ====================完成导入模块====================
 
@@ -130,39 +126,23 @@ def working(user):
         return msg
     elif user['type'] == 1:
         # 以下代码是签到的代码
-        LL.log(1, '即将开始签到')
-        sign = AutoSign(today, user)
-        sign.getUnSignTask()
-        sign.getDetailTask()
-        sign.fillForm()
-        msg = sign.submitForm()
+        LL.log(1, '不支持签到')
+        msg = 'nyet!'
         return msg
     elif user['type'] == 2:
         # 以下代码是查寝的代码
-        LL.log(1, '即将开始查寝填报')
-        check = sleepCheck(today, user)
-        check.getUnSignedTasks()
-        check.getDetailTask()
-        check.fillForm()
-        msg = check.submitForm()
+        LL.log(1, '不支持查寝填报')
+        msg = 'nyet!'
         return msg
     elif user['type'] == 3:
         # 以下代码是工作日志的代码
-        LL.log(1, '即将开始工作日志填报')
-        work = workLog(today, user)
-        work.checkHasLog()
-        work.getFormsByWids()
-        work.fillForms()
-        msg = work.submitForms()
+        LL.log(1, '不支持工作日志填报')
+        msg = 'nyet!'
         return msg
     elif user['type'] == 4:
         # 以下代码是政工签到的代码
-        LL.log(1, '即将开始政工签到填报')
-        check = teacherSign(today, user)
-        check.getUnSignedTasks()
-        check.getDetailTask()
-        check.fillForm()
-        msg = check.submitForm()
+        LL.log(1, '不支持政工签到填报')
+        msg = 'nyet!'
         return msg
     else:
         raise Exception('任务类型出错，请检查您的user的type')
@@ -217,17 +197,6 @@ def main():
     sm = SendMessage(config.get('sendMessage'))
     sm.send(msg+'\n'+LL.getLog(4), '自动健康打卡')
     LL.log(1, sm.log_str)
-
-
-def handler(event, context):
-    '''阿里云的入口函数'''
-    main()
-
-
-def main_handler(event, context):
-    '''腾讯云的入口函数'''
-    main()
-    return 'ok'
 
 
 if __name__ == '__main__':
