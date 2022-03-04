@@ -15,20 +15,12 @@ def check_module_integrity():
     sys.path.append(os.getcwd())
 
 
-def env_clear():
-    for file_name in ['finish.jpg', 'personal_info.jpg']:
-        if os.path.exists(file_name):
-            os.remove(file_name)
-            print('del!')
-
-
 def main():
     # 主函数
+    os.environ['TZ'] = "Asia/Shanghai"  # 将时区设为UTC+8
     check_module_integrity()
     teen_study.run()
     ruoli_opt.main()
-    # at last
-    env_clear()
 
 
 def main_handler(event, context):

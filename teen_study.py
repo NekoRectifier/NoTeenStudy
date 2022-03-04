@@ -6,7 +6,7 @@ import io
 import ssl
 from bs4 import BeautifulSoup
 
-openid = "omLPUjttw2l5lNe6i_hJFSjyUUBA"
+openid = "XXXXXXXXXXXXXXXXXXXXXXX"
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -143,7 +143,7 @@ def get_finish_pic(code):
 
     print(base_url)
 
-    urlretrieve(base_url, "finish.jpg")
+    urlretrieve(base_url, "/tmp/finish.jpg")
 
 
 def get_user_info_pic(course, name, id, company):
@@ -160,7 +160,7 @@ def get_user_info_pic(course, name, id, company):
 
     data = {
         'url': req_url,  # 不要更改 这是我服务器上提供的图片生成页面
-        'token': '621cf77a17aae',  # 需替换为自己的screenshotmaster api token
+        'token': 'xxxxxxxxxxxxx',  # 需替换为自己的screenshotmaster api token
         'width': '828',  # 此大小与中青在线提供的完成图片大小一致
         'height': '1366',
         'delay': '50',
@@ -170,7 +170,7 @@ def get_user_info_pic(course, name, id, company):
     r = requests.post("https://www.screenshotmaster.com/api/v1/screenshot", data=data)
     img = Image.open(io.BytesIO(r.content))
     img = img.convert("RGB")
-    img.save("personal_info.jpg")
+    img.save("/tmp/personal_info.jpg")
 
 
 def run():

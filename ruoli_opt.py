@@ -13,7 +13,6 @@ try:
 except UnicodeEncodeError:
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())  # 设置默认输出编码为utf-8, WARNING!!!但是会影响腾讯云函数日志输出。
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # 将工作路径设置为脚本位置
-os.environ['TZ'] = "Asia/Shanghai"  # 将时区设为UTC+8
 
 # 检查第三方模块
 try:
@@ -33,7 +32,7 @@ except OSError as e:
 
 # 检查代码完整性
 try:
-    for i in ("todayLoginService", "actions/autoSign", "actions/collection", "actions/sleepCheck", "actions/workLog", "actions/sendMessage", "actions/teacherSign", "login/Utils", "login/casLogin", "login/iapLogin", "login/RSALogin", "liteTools"):
+    for i in ("todayLoginService", "actions/collection", "actions/sendMessage", "login/Utils", "login/casLogin", "login/iapLogin", "login/RSALogin", "liteTools"):
         i = os.path.normpath(i)  # 路径适配系统
         imp.find_module(i)
 except ImportError as e:

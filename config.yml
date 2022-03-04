@@ -23,14 +23,15 @@ users: # ------别误删了这一行------
     checkTitle: 1 # 是否检查表单的标题（1:检查|0:不检查）
     forms: # 表单信息
       - form:
-          title: 是否在“青春湖北”上学习 #标题
+          title: 是否在“青春湖北”上完成学习 #标题
           value: 是 # 如果是多选请用"|"分割值
           isNeed: 1 # 是否需要提交此问题，必填问题一定要填1(1:提交|0:不提交)
       - form:
-          title: 请上传登录界面、完成学习截图
+          title: 请上传登录界面截图、完成学习截图
           value:
-            - personal_info.jpg
-            - finish.jpg
+            - /tmp/personal_info.jpg
+            - /tmp/finish.jpg
+            # 腾讯云函数中临时文件必须放在tmp目录下
             # 单张图片可这样写: 'info.png'
             # 多张图片就这样:
             # - 1.png

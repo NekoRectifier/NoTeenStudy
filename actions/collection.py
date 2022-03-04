@@ -164,8 +164,9 @@ class Collection:
                         formItem['value'] = self.getPictureUrl()
                     else:
                         for pic in picDir:
-                            self.uploadPicture(pic, os.path.splitext(pic)[-1])  # 要对上传做稍微修改
-                            pic_url.append(self.getPictureUrl() + '.png')
+                            suffix_name = os.path.splitext(pic)[-1]
+                            self.uploadPicture(pic, suffix_name)  # 要对上传做稍微修改
+                            pic_url.append(self.getPictureUrl() + suffix_name)
                         formItem['value'] = ','.join(pic_url)
 
                     # 填充其他信息
