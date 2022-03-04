@@ -7,6 +7,9 @@ import ssl
 from bs4 import BeautifulSoup
 
 openid = "XXXXXXXXXXXXXXXXXXXXXXX"
+token = "XXXXXXXXXXXXXXXXXXXXXXXX"
+info_pic_gen_server = "http://124.222.5.227:8080?course=" # 这是我服务器上提供的图片生成页面
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
@@ -152,15 +155,15 @@ def get_user_info_pic(course, name, id, company):
     :param course, name, id, company:
     :return:
     """
-    req_url = "http://124.222.5.227:8080?course="
+    req_url = info_pic_gen_server
     req_url += str(course)
     req_url += "&name=" + str(name)
     req_url += "&id=" + str(id)
     req_url += "&company=" + str(company)
 
     data = {
-        'url': req_url,  # 不要更改 这是我服务器上提供的图片生成页面
-        'token': 'xxxxxxxxxxxxx',  # 需替换为自己的screenshotmaster api token
+        'url': req_url,  
+        'token': token,  # 需替换为自己的screenshotmaster api token
         'width': '828',  # 此大小与中青在线提供的完成图片大小一致
         'height': '1366',
         'delay': '50',
