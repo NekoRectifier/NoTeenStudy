@@ -6,7 +6,7 @@ original-author: 若离|IceTiki|https://github.com/IceTiki/ruoli-sign-optimizati
 locationOffsetRange: 5 # 坐标偏移范围(单位：米)(可以为0)
 maxTry: 1 # 最大尝试次数
 logDir: 'log/' # 日志保存地址
-delay: [1,2] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
+delay: [ 1,2 ] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
 
 # ======================================================================
 # 用户组配置(填写自己所需的类型，并删掉不需要的。可以多用户签到。)
@@ -49,7 +49,14 @@ users: # ------别误删了这一行------
 # ======================================================================
 # 青年大学习配置 !!暂未启用!!
 # ======================================================================
-# 
-# open_id: 
-# personal_info_generate_server:
-# screen_master_token:"
+
+output_dir: '/tmp/' # 仅调试使用
+
+openid: 'xxxxxxxxxxxxxxxxxxxxxxxxx'
+personal_info_generate_server: 'http://124.222.5.227:8080'
+token: 'xxxxxxxxxxx'
+add_status_bar: true
+status_images: # !注意! 不要写成这样 -> /image/x.jpg
+  - 'image/1_blank.png'
+  - 'image/2_blank.png'
+  - 'image/3_blank.png'
