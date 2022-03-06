@@ -13,11 +13,12 @@ with open('config.yml', 'r', encoding='utf-8') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 
-def add_text(img_path, text, x=0, y=0, color=(255, 255, 255), size=40):
+def add_horizontal_center_text(img_path, text, y=0, color=(255, 255, 255), size=40):
     image = Image.open(img_path)
     draw = Draw.Draw(image)
-    style = Font.truetype("font/NotoSansSC.otf", size, encoding='utf-8')
-    draw.text((x, y), text, color, font=style)
+    font = Font.truetype("font/NotoSansSC.otf", size, encoding='utf-8')
+    x_coordinate = int((image.size[0] - font.getsize(text)[0]) / 2)
+    draw.text((x_coordinate, y), text, color, font=font)
     return image
 
 
@@ -186,7 +187,7 @@ def get_user_info_pic(course, name, id, company):
 
     data = {
         'url': req_url,
-        'token': config['token'],  # 需替换为自己的screenshotmaster api token
+        'token': config['token'],
         'width': '828',  # 此大小与中青在线提供的完成图片大小一致
         'height': '1366',
         'delay': '1000',
@@ -199,18 +200,26 @@ def get_user_info_pic(course, name, id, company):
     img.save(config['output_dir'] + "personal_info.jpg")
 
 
-def image_processing(course_name):
+def image_processing(course_name, content_img_path):
     print(course_name)
     if config['add_status_bar']:
-        img = choice(config['status_images'])
-        print(img)
 
-        # TODO:检测颜色?
+        # TODO: 添加针对不同状态栏高度的适配
+        # 具体: 微信toolbar的高度貌似是一样的?
 
-        img = add_text(img, "“青年大学习”第十三季", 175, 93, (0, 0, 0), 40)
-        img.show()
+        content_img = Image.open(content_img_path)
 
-        # TODO:再次拼接图片
+        status_img_path = choice(config['status_images'])
+        status_img = add_horizontal_center_text(status_img_path, "“青年大学习”", 93, (0, 0, 0), 40)
+
+        full_img = Image.new('RGB', (828, content_img.size[1] + status_img.size[1]), (255, 255, 255))
+
+        full_img.paste(status_img, (0, 0))
+        full_img.paste(content_img, (0, status_img.size[1]))
+
+        full_img.show()
+
+        # 将代码循环化
 
 
 def run():
@@ -219,11 +228,11 @@ def run():
     user_info = get_user(s)
     course = get_course(s, code)
     save_door(user_info, course, s)
-    get_finish_pic(code)
-    get_user_info_pic(course, user_info["name"], user_info["uid"],
-                      user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
+    # get_finish_pic(code)
+    # get_user_info_pic(course, user_info["name"], user_info["uid"],
+    #                  user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
 
-    image_processing(course)
+    image_processing(course, 'image/finish.jpg')
 
 
 if __name__ == '__main__':
