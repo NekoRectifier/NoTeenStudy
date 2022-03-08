@@ -200,39 +200,46 @@ def get_user_info_pic(course, name, id, company):
     img.save(config['output_dir'] + "personal_info.jpg")
 
 
-def image_processing(course_name, content_img_path):
-    print(course_name)
+def image_processing(course_name, content_img_paths):
     if config['add_status_bar']:
-
+        status_img_path = choice(config['status_images'])
         # TODO: 添加针对不同状态栏高度的适配
         # 具体: 微信toolbar的高度貌似是一样的?
+        for content_img_path in content_img_paths:
+            content_img = Image.open(content_img_path)
+            status_img = add_horizontal_center_text(status_img_path, "“青年大学习”" + course_name, 93, (0, 0, 0), 40)
+            full_img = Image.new('RGB', (828, content_img.size[1] + status_img.size[1]), (255, 255, 255))
 
-        content_img = Image.open(content_img_path)
+            full_img.paste(status_img, (0, 0))
+            full_img.paste(content_img, (0, status_img.size[1]))
 
-        status_img_path = choice(config['status_images'])
-        status_img = add_horizontal_center_text(status_img_path, "“青年大学习”", 93, (0, 0, 0), 40)
+            # full_img.show()
+            full_img.save(content_img_path)
 
-        full_img = Image.new('RGB', (828, content_img.size[1] + status_img.size[1]), (255, 255, 255))
 
-        full_img.paste(status_img, (0, 0))
-        full_img.paste(content_img, (0, status_img.size[1]))
-
-        full_img.show()
-
-        # 将代码循环化
+def add_name(content_image_paths):
+    for content_image_path in content_image_paths:
+        result = add_horizontal_center_text(content_image_path, config['name'], 500, (10, 220, 120), 90)
+        # result.show()
+        result.save(content_image_path)
 
 
 def run():
+    images = config['content_images']
+
     s = requests.session()
     code = get_code(s)
     user_info = get_user(s)
     course = get_course(s, code)
     save_door(user_info, course, s)
-    # get_finish_pic(code)
-    # get_user_info_pic(course, user_info["name"], user_info["uid"],
-    #                  user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
+    get_finish_pic(code)
+    get_user_info_pic(course, user_info["name"], user_info["uid"],
+                      user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
 
-    image_processing(course, 'image/finish.jpg')
+    image_processing(course, images)
+
+    if config['add_name']:
+        add_name(images)
 
 
 if __name__ == '__main__':

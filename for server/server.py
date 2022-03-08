@@ -2,9 +2,9 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
+
 @app.route('/', methods=['POST', 'GET'])
 def get_pic():
-
     if request.args.get("course") is not None:
         course = request.args.get("course")
         name = request.args.get("name")
@@ -16,11 +16,11 @@ def get_pic():
         id = request.form.get('id')
         company = request.form.get('company')
 
-
-    html =  (
+    html = (
             "\n"
             "<!DOCTYPE html\n"
-            "	PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+            "PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
+            "\"https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n "
             "<html xmlns=\"https://www.w3.org/1999/xhtml\">\n"
             "\n"
             "<head>\n"
@@ -32,11 +32,13 @@ def get_pic():
             "	<meta name=\"format-detection\" content=\"telephone=no\">\n"
             "\n"
             "	<script type=\"text/javascript\" src=\"https://res.wx.qq.com/open/js/jweixin-1.0.0.js\"></script>\n"
-            "	<script type=\"text/javascript\" src=\"https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js\"></script>\n"
+            "<script type=\"text/javascript\" src=\"https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js"
+            "\"></script>\n "
             "\n"
             "	<script>\n"
             "		if (!window.jQuery)\n"
-            "			document.write('<script type=\"text/javascript\" src=\"http://cdnsite.fjg360.cn/jquery-1.9.1.min.js\"><' + '/script>');\n"
+            "document.write('<script type=\"text/javascript\" src=\"http://cdnsite.fjg360.cn/jquery-1.9.1.min.js\"><' "
+            "+ '/script>');\n "
             "		//http://cdnsite.fjg360.cn/jquery-1.9.1.min.js\n"
             "\n"
             "		if (navigator.userAgent.toLowerCase().match(/huawei/i) == \"huawei\") {\n"
@@ -278,29 +280,32 @@ def get_pic():
             "			<div id=\"main\" class=\"main\">\n"
             "\n"
             "				<div id=\"main_title\" class=\"main_title\">\n"
-            "					当前课程：<span id=\"now_lesson\">"+ str(course) +"</span></div>\n"
-                                                                              "\n"
-                                                                              "				<div id=\"main_forum\" class=\"main_forum\">\n"
-                                                                              "					您的姓名：<span id=\"now_name\">"+ str(name) +"</span></div>\n"
-                                                                                                                                            "\n"
-                                                                                                                                            "				<div id=\"main_close\" class=\"main_close\">\n"
-                                                                                                                                            "					用户编号：<span id=\"now_id\">"+ str(id) +"</span></div>\n"
-                                                                                                                                                                                                      "\n"
-                                                                                                                                                                                                      "				<div id=\"main_thumbnail\" class=\"main_thumbnail\">\n"
-                                                                                                                                                                                                      "					所属单位：<span id=\"now_company\">"+ str(company) +"</span></div>\n"
-                                                                                                                                                                                                                                                                          "			</div>\n"
-                                                                                                                                                                                                                                                                          "		</div>\n"
-                                                                                                                                                                                                                                                                          "\n"
-                                                                                                                                                                                                                                                                          "		<script>\n"
-                                                                                                                                                                                                                                                                          "			$('#con_bind').show();\n"
-                                                                                                                                                                                                                                                                          "			$('#con_first').hide();\n"
-                                                                                                                                                                                                                                                                          "		</script>\n"
-                                                                                                                                                                                                                                                                          "</body>\n"
-                                                                                                                                                                                                                                                                          "\n"
-                                                                                                                                                                                                                                                                          "</html>\n"
-                                                                                                                                                                                                                                                                          "            ")
+            "					当前课程：<span id=\"now_lesson\">" + str(course) + "</span></div>\n"
+                                                                                "\n"
+                                                                                "				<div id=\"main_forum\" class=\"main_forum\">\n"
+                                                                                "					您的姓名：<span id=\"now_name\">" + str(
+        name) + "</span></div>\n"
+                "\n"
+                "				<div id=\"main_close\" class=\"main_close\">\n"
+                "					用户编号：<span id=\"now_id\">" + str(id) + "</span></div>\n"
+                                                                            "\n"
+                                                                            "				<div id=\"main_thumbnail\" class=\"main_thumbnail\">\n"
+                                                                            "					所属单位：<span id=\"now_company\">" + str(
+        company) + "</span></div>\n"
+                   "			</div>\n"
+                   "		</div>\n"
+                   "\n"
+                   "		<script>\n"
+                   "			$('#con_bind').show();\n"
+                   "			$('#con_first').hide();\n"
+                   "		</script>\n"
+                   "</body>\n"
+                   "\n"
+                   "</html>\n"
+                   "            ")
 
     return html
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080, debug=True)

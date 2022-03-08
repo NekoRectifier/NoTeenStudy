@@ -1,4 +1,4 @@
-#-*- coding : utf-8-*-
+# -*- coding : utf-8-*-
 
 import PIL.Image as Image
 import io
