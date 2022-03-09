@@ -20,14 +20,19 @@
 
 ## :memo: 咕咕咕计划
 
-0. 给图片加上状态栏,使其更加真实
-1. 使用`config.yml`对teen_study进行配置
-2. 实现使用Telegram进行反馈/操作
-3. 实现一键腾讯云云函数/自有云服务器部署
+0. [✔️]给图片加上状态栏,使其更加真实
+1. [✔️]使用`config.yml`对teen_study进行配置
+2. [🔘]实现使用Telegram进行反馈/操作
+3. [🔘]实现一键腾讯云云函数/自有云服务器部署
+
+## 会导致该项目坏掉的奇怪原因
+
+1. 周六/日青年大学习的完成图片获取貌似会被提前切换到下一期去...
 
 ## :sparkles: 致谢
 
 本项目基于[若离的今日校园自动签到项目](https://github.com/IceTiki/ruoli-sign-optimization)和[Samuelli924的青年大学习项目](https://github.com/Samueli924/TeenStudy)。感谢他们的付出。
+
 ## :warning: 免责声明
 
 - 本代码遵循 [GPL-3.0 License](https://github.com/NekoRectifier/NoTeenStudy/blob/main/LICENSE) 协议，允许**开源/免费使用和引用/修改/衍生代码的开源/免费使用**，不允许**修改和衍生的代码作为闭源的商业软件发布和销售**，禁止**使用本代码盈利**，以此代码为基础的程序**必须**同样遵守[GPL-3.0 License](https://github.com/NekoRectifier/NoTeenStudy/blob/main/LICENSE)协议  

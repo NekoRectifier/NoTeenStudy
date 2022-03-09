@@ -6,7 +6,7 @@ original-author: 若离|IceTiki|https://github.com/IceTiki/ruoli-sign-optimizati
 locationOffsetRange: 5 # 坐标偏移范围(单位：米)(可以为0)
 maxTry: 1 # 最大尝试次数
 logDir: 'log/' # 日志保存地址
-delay: [1,2] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
+delay: [ 1,2 ] # 多用户时，各用户之间任务执行延迟(时间范围可以使用浮点数)
 
 # ======================================================================
 # 用户组配置(填写自己所需的类型，并删掉不需要的。可以多用户签到。)
@@ -38,9 +38,6 @@ users: # ------别误删了这一行------
             # - 2.png
             # - ...
           isNeed: 1
-
-      # 写' - form '来添加更多问题
-
     # 经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
     lon: 115.000000 # 经度
     lat: 50.000000 # 纬度
@@ -72,8 +69,7 @@ status_images: # !注意! 不要写成这样 -> /image/x.jpg
 # 想要添加自己的? 直接把图片放到image文件夹下,再在这里添加就可以了
 
 ######## 在截图上添加文字设定 ########
-add_name: true
+add_name: true # 是否要添加文字
 name: 'NoTeenStudy'
 font: 'NotoSansSC.otf'
 # 注意此字体同时用于状态栏上的标题生成和截图上另外添加的文本
-
