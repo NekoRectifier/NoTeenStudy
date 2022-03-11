@@ -113,7 +113,6 @@ def working(user):
     today = TodayLoginService(user)
     today.login()
     LL.log(1, '登录完成')
-    # 登陆成功，通过type判断当前属于 信息收集、签到、查寝
     # 信息收集
     if user['type'] == 0:
         # 以下代码是信息收集的代码

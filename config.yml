@@ -49,17 +49,15 @@ users: # ------别误删了这一行------
 
 ######## 此处不要修改,仅调试使用 ########
 output_dir: '/tmp/'
-content_images: # 提交前修改
+content_images:
   - '/tmp/finish.jpg'
   - '/tmp/personal_info.jpg'
 ######## 此处不要修改,仅调试使用 ########
-
 
 ######## 青年大学习图片生成的设定 ########
 openid: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 personal_info_generate_server: 'http://124.222.5.227:8080'
 token: 'xxxxxxxxxxxxxxx' # 网页截屏大师的token
-
 
 ######## 添加状态栏图片的设定 ########
 add_status_bar: true
@@ -70,6 +68,6 @@ status_images: # !注意! 不要写成这样 -> /image/x.jpg
 
 ######## 在截图上添加文字设定 ########
 add_name: true # 是否要添加文字
-name: 'NoTeenStudy'
+name: 'NoTeenStudy' # 添加的文字内容
 font: 'NotoSansSC.otf'
 # 注意此字体同时用于状态栏上的标题生成和截图上另外添加的文本
