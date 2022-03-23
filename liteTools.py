@@ -1,4 +1,5 @@
 import time
+from typing import Sequence
 import requests
 import yaml
 import math
@@ -9,11 +10,74 @@ from pyDes import des, CBC, PAD_PKCS5
 import base64
 import hashlib
 import urllib.parse
+import re
+import json
+import imghdr
+from requests_toolbelt import MultipartEncoder
 
 
 class TaskError(Exception):
     '''目前(配置/时间/签到情况)不宜完成签到任务'''
     pass
+
+
+class LL:
+    '''lite log'''
+    prefix = "V-T3.7.2"  # 版本标识
+    startTime = time.time()
+    log_list = []
+    printLevel = 0
+    logTypeDisplay = ['debug', 'info', 'warn', 'error', 'critical']
+
+    @staticmethod
+    def formatLog(logType: str, args):
+        '''返回logItem[时间,类型,内容]'''
+        string = ''
+        for item in args:
+            if type(item) == dict or type(item) == list:
+                string += yaml.dump(item, allow_unicode=True)+'\n'
+            else:
+                string += str(item)+'\n'
+        return [time.time()-LL.startTime, logType, string]
+
+    @staticmethod
+    def log2FormatStr(logItem):
+        logType = LL.logTypeDisplay[logItem[1]]
+        return '|||%s|||%s|||%0.3fs|||\n%s' % (LL.prefix, logType, logItem[0], logItem[2])
+
+    @staticmethod
+    def log(logType=1, *args):
+        '''日志函数
+        logType:int = debug:0|info:1|warn:2|error:3|critical:4'''
+        if not args:
+            return
+        logItem = LL.formatLog(logType, args)
+        LL.log_list.append(logItem)
+        if logType >= LL.printLevel:
+            print(LL.log2FormatStr(logItem))
+
+    @staticmethod
+    def getLog(level=0):
+        '''获取日志函数'''
+        string = ''
+        for item in LL.log_list:
+            if level <= item[1]:
+                string += LL.log2FormatStr(item)
+        return string
+
+    @staticmethod
+    def saveLog(dir, level=0):
+        '''保存日志函数'''
+        if type(dir) != str:
+            return
+
+        log = LL.getLog(level)
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
+        dir = os.path.join(dir, time.strftime(
+            "LOG#t=%Y-%m-%d--%H-%M-%S##.txt", time.localtime()))
+        with open(dir, 'w', encoding='utf-8') as f:
+            f.write(log)
 
 
 class CpdailyTools:
@@ -78,6 +142,80 @@ class CpdailyTools:
         abstract_md5 = HSF.strHash(abstract, 5)
         return abstract_md5
 
+    @staticmethod
+    def baiduGeocoding(address: str):
+        '''地址转坐标'''
+        # 获取百度地图API的密钥
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+        url = 'https://feres.cpdaily.com/bower_components/baidumap/baidujsSdk@2.js'
+        res = requests.get(url, headers=headers, verify=False)
+        baiduMap_ak = re.findall(r"ak=(\w*)", res.text)[0]
+        # 用地址获取相应坐标
+        url = f'http://api.map.baidu.com/geocoding/v3'
+        params = {
+            "output": "json", "address": address, "ak": baiduMap_ak}
+        res = requests.get(
+            url, headers=headers, params=params, verify=False)
+        res = DT.resJsonEncode(res)
+        lon = res['result']['location']['lng']
+        lat = res['result']['location']['lat']
+        return (lon, lat)
+
+    @staticmethod
+    def baiduReverseGeocoding(lon: float, lat: float):
+        '''地址转坐标'''
+        # 获取百度地图API的密钥
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+        url = 'https://feres.cpdaily.com/bower_components/baidumap/baidujsSdk@2.js'
+        res = requests.get(url, headers=headers, verify=False)
+        baiduMap_ak = re.findall(r"ak=(\w*)", res.text)[0]
+        # 用地址获取相应坐标
+        url = f'http://api.map.baidu.com/reverse_geocoding/v3'
+        params = {
+            "output": "json", "location": "%f,%f" % (lon, lat), "ak": baiduMap_ak}
+        res = requests.get(url, headers=headers, params=params, verify=False)
+        res = DT.resJsonEncode(res)
+        address = res['result']['formatted_address']
+        return address
+
+    @staticmethod
+    def uploadPicture(url, session, picBlob, picType):
+        '''上传图片到阿里云oss'''
+        res = session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps({'fileType': 1}),
+                           verify=False)
+        datas = DT.resJsonEncode(res).get('datas')
+        fileName = datas.get('fileName')
+        policy = datas.get('policy')
+        accessKeyId = datas.get('accessid')
+        signature = datas.get('signature')
+        policyHost = datas.get('host')
+        ossKey = f'{fileName}.{picType}'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0'
+        }
+        multipart_encoder = MultipartEncoder(
+            fields={  # 这里根据需要进行参数格式设置
+                'key': ossKey, 'policy': policy, 'AccessKeyId': accessKeyId,
+                'signature': signature, 'x-obs-acl': 'public-read',
+                'file': ('blob', picBlob, f'image/{picType}')
+            })
+        headers['Content-Type'] = multipart_encoder.content_type
+        res = session.post(url=policyHost,
+                           headers=headers,
+                           data=multipart_encoder)
+        return ossKey
+
+    @staticmethod
+    def getPictureUrl(url, session, ossKey):
+        '''获取图片上传位置'''
+        params = {'ossKey': ossKey}
+        res = session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps(params),
+                           verify=False)
+        photoUrl = res.json().get('datas')
+        return photoUrl
+
 
 class MT:
     '''MiscTools'''
@@ -93,6 +231,16 @@ class MT:
             math.cos(lat2) * math.sin(dlon/2)**2
         distance = 2*math.asin(math.sqrt(a))*6371393  # 地球平均半径，6371393m
         return distance
+
+    @staticmethod
+    def timeListFormat(raw):
+        '''将列表中的字符串用time.strftime格式化(参数接受元组/字符串/列表)'''
+        # 类型转换
+        raw = DT.formatStrList(raw)
+        # 开始格式化
+        for i, v in enumerate(raw):
+            raw[i] = time.strftime(v, time.localtime())
+        return raw
 
 
 class PseudoRandom:
@@ -167,38 +315,107 @@ class RT:
     @staticmethod
     def choiceFile(dir):
         '''从指定路径(路径列表)中随机选取一个文件路径'''
-        if type(dir) == list:
+        if type(dir) == list or type(dir) == tuple:
+            '''如果路径是一个列表/元组，则从中随机选择一项'''
             dir = random.choice(dir)
         if os.path.isfile(dir):
+            '''如果路径指向一个文件，则返回这个路径'''
             return dir
         else:
             files = os.listdir(dir)
+            '''如果路径指向一个文件夹，则随机返回一个文件夹里的文件'''
             if len(files) == 0:
                 raise Exception("路径(%s)指向一个空文件夹" % dir)
             return os.path.join(dir, random.choice(files))
 
     @staticmethod
     def choiceInList(item):
-        if type(item) == list:
+        '''从列表/元组中随机选取一项'''
+        if type(item) in (list, tuple):
             return random.choice(item)
         else:
             return item
 
     @staticmethod
-    def choicePhoto(dir):
-        """从指定路径(路径列表)中随机选取一个图片路径"""
-        if type(dir) == list:
-            return dir
+    def choicePhoto(picList, dirTimeFormat = False):
+        """
+        从图片(在线/本地/文件夹)文件夹中选取可用图片(优先选取在线图片)，并返回其对应的二进制文件和图片类型
+        
+        :param picList: 图片(在线/本地/文件夹)地址，可用是序列或字符串
+        :param dirTimeFormat: 是否对本地地址中的时间元素格式化(使用time.strftime)
+        :returns: 返回(picBlob: bytes二进制图片, picType: str图片类型)
+        """
+        # 格式化picList为list
+        picList = DT.formatStrList(picList)
+        # 打乱picList顺序
+        random.shuffle(picList)
 
-        pic_file = []
+        # 根据图片地址前缀筛选出在线图片列表
+        urlList = filter(lambda x: re.match(r'https?:\/\/', x), picList)
+        for url in urlList:
+            '''遍历url列表, 寻找可用图片'''
+            # 下载图片
+            LL.log(1, f'正在尝试下载[{url}]')
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46", }
+            try:
+                response = requests.get(
+                    url=url, headers=headers, timeout=(10, 20))
+            except requests.exceptions.ConnectionError:
+                LL.log(1, f'在线图片[{url}]下载失败，错误原因:\n{e}\
+                    \n可能造成此问题的原因有:\
+                    \n1. 图片链接失效(请自行验证链接是否可用)\
+                    \n2. 图片请求超时(过几分钟再试一下)\
+                    \n如持续遇到此问题，请检查该链接的有效性或移除此链接')
+                continue
+            picBlob = response.content
+            LL.log(1, f'在线图片[{url}]下载成功')
+            # 判断图片类型
+            picType = imghdr.what(None, picBlob)
+            if picType:
+                LL.log(1, f'在线图片[{url}]属于{picType}')
+                return picBlob, picType
+            else:
+                LL.log(1, f'在线图片[{url}]不是正常图片')
+                continue
 
-        if os.path.isfile(dir):
-            return dir
-        else:
-            for file in os.listdir(dir):
-                if (file.endswith('.jpg') | file.endswith('.png')) & os.path.isfile(file):
-                    pic_file.append(file)
+        # 根据图片地址前缀筛选出本地路径列表
+        dirList = list(set(picList) - set(urlList))
+        # 本地图片列表时间占位符格式化
+        if dirTimeFormat:
+            dirList = MT.timeListFormat(dirList)
+        # 将被路径指向文件加入列表
+        fileList = list(filter(lambda x: os.path.isfile(x), dirList))
+        # 将被路径指向文件夹中的图片加入列表
+        folderList = list(filter(lambda x: os.path.isdir(x), dirList))
+        for folder in folderList:
+            for root, _, files in os.walk(folder, topdown=False):
+                for name in files:
+                    fileDir = os.path.join(root, name)
+                    fileDir = os.path.abspath(fileDir)
+                    fileList.append(fileDir)
+        # 打乱文件列表
+        random.shuffle(fileList)
 
+        for file in fileList:
+            '''遍历路径列表, 寻找可用图片'''
+            with open(file, 'rb') as f:
+                picBlob = f.read()
+            picType = imghdr.what(None, picBlob)
+            if picType:
+                LL.log(1, f'本地图片[{file}]属于{picType}')
+                return picBlob, picType
+            else:
+                LL.log(1, f'本地图片[{file}]不是正常图片')
+                continue
+
+        # 如果没有找到可用图片，开始报错
+        LL.log(2, '图片列表中没有可用图片')
+        # 报出无效本地路径列表
+        invalidPath = list(set(dirList) - set(fileList) - set(folderList))
+        if invalidPath:
+            LL.log(1, '无效本地路径列表', invalidPath)
+        raise Exception('图片列表中没有可用图片')
 
     @staticmethod
     def randomSleep(timeRange: tuple = (5, 7)):
@@ -243,65 +460,15 @@ class DT:
             raise Exception(
                 f'响应内容以json格式解析失败({e})，响应内容:\n\n{res.text}')
 
-
-class LL:
-    '''lite log'''
-    prefix = "V-T3.4.1"  # 版本标识
-    startTime = time.time()
-    log_list = []
-    printLevel = 0
-    logTypeDisplay = ['debug', 'info', 'warn', 'error', 'critical']
-
     @staticmethod
-    def formatLog(logType: str, args):
-        '''返回logItem[时间,类型,内容]'''
-        string = ''
-        for item in args:
-            if type(item) == dict or type(item) == list:
-                string += yaml.dump(item, allow_unicode=True)+'\n'
-            else:
-                string += str(item)+'\n'
-        return [time.time()-LL.startTime, logType, string]
-
-    @staticmethod
-    def log2FormatStr(logItem):
-        logType = LL.logTypeDisplay[logItem[1]]
-        return '|||%s|||%s|||%0.3fs|||\n%s' % (LL.prefix, logType, logItem[0], logItem[2])
-
-    @staticmethod
-    def log(logType=1, *args):
-        '''日志函数
-        logType:int = debug:0|info:1|warn:2|error:3|critical:4'''
-        if not args:
-            return
-        logItem = LL.formatLog(logType, args)
-        LL.log_list.append(logItem)
-        if logType >= LL.printLevel:
-            print(LL.log2FormatStr(logItem))
-
-    @staticmethod
-    def getLog(level=0):
-        '''获取日志函数'''
-        string = ''
-        for item in LL.log_list:
-            if level <= item[1]:
-                string += LL.log2FormatStr(item)
-        return string
-
-    @staticmethod
-    def saveLog(dir, level=0):
-        '''保存日志函数'''
-        if type(dir) != str:
-            return
-
-        log = LL.getLog(level)
-        if not os.path.isdir(dir):
-            os.makedirs(dir)
-        dir = os.path.join(dir, time.strftime(
-            "LOG#t=%Y-%m-%d--%H-%M-%S##.txt", time.localtime()))
-        with open(dir, 'w', encoding='utf-8') as f:
-            f.write(log)
-
+    def formatStrList(item):
+        '''序列或字符串 格式化为 列表'''
+        if type(item) == str:
+            return [item]
+        elif isinstance(item, Sequence):
+            return list(item)
+        else:
+            raise TypeError('请传入序列/字符串')
 
 class CT:
     '''CryptoTools'''

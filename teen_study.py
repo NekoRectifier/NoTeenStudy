@@ -213,7 +213,6 @@ def image_processing(course_name, content_img_paths):
             full_img.paste(status_img, (0, 0))
             full_img.paste(content_img, (0, status_img.size[1]))
 
-            # full_img.show()
             full_img.save(content_img_path)
 
 
