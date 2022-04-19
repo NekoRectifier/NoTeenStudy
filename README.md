@@ -1,7 +1,8 @@
-<img align="center" src="readme.asset/logo.png" />
-<h1 align="center">No Teen Study</h1>
-<p align="center">通过获取青年大学习完成图片联合今日校园功能实现全自动提交<b>（适用于青春湖北）</b></p>
-
+<div align=center>
+<img src="readme.asset/logo.png" width=120 height=120 />
+<h1>No Teen Study</h1>
+<p >通过获取青年大学习完成图片联合今日校园功能实现全自动提交<b>（仅适用于青春湖北）</b></p>
+</div>
 
 ## :tada: 功能介绍  
 
