@@ -1,3 +1,4 @@
+<img align="center" src="readme.asset/logo.png" />
 <h1 align="center">No Teen Study</h1>
 <p align="center">通过获取青年大学习完成图片联合今日校园功能实现全自动提交<b>（适用于青春湖北）</b></p>
 
