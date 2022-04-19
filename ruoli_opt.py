@@ -122,32 +122,12 @@ def working(user):
         collection.fillForm()
         msg = collection.submitForm()
         return msg
-    elif user['type'] == 1:
-        # 以下代码是签到的代码
-        LL.log(1, '不支持签到')
-        msg = 'nyet!'
-        return msg
-    elif user['type'] == 2:
-        # 以下代码是查寝的代码
-        LL.log(1, '不支持查寝填报')
-        msg = 'nyet!'
-        return msg
-    elif user['type'] == 3:
-        # 以下代码是工作日志的代码
-        LL.log(1, '不支持工作日志填报')
-        msg = 'nyet!'
-        return msg
-    elif user['type'] == 4:
-        # 以下代码是政工签到的代码
-        LL.log(1, '不支持政工签到填报')
-        msg = 'nyet!'
-        return msg
     else:
         raise Exception('任务类型出错，请检查您的user的type')
 
 
 def main():
-    '''主函数'''
+    """主函数"""
     print("==========脚本开始执行==========")
 
     # 加载配置

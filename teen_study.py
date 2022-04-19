@@ -13,12 +13,13 @@ with open('config.yml', 'r', encoding='utf-8') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 
-def add_horizontal_center_text(img_path, text, y=0, color=(255, 255, 255), size=40):
+def add_text(user, img_path, text, x=100, y=100, color=(230, 230, 230), size=40, center=False):
     image = Image.open(img_path)
     draw = Draw.Draw(image)
-    font = Font.truetype("font/" + config['font'], size, encoding='utf-8')
-    x_coordinate = int((image.size[0] - font.getsize(text)[0]) / 2)
-    draw.text((x_coordinate, y), text, color, font=font)
+    font = Font.truetype("font/" + user['font'], size, encoding='utf-8')
+    if center:
+        x = int((image.size[0] - font.getsize(text)[0]) / 2)
+    draw.text((x, y), text, color, font=font)
     return image
 
 
@@ -32,7 +33,7 @@ def show_exit(content):
     exit()
 
 
-def get_code(s):
+def get_code():
     """
     调用API获取最新一期青春学习的CODE
     :return:
@@ -54,12 +55,12 @@ def get_code(s):
         "Accept-Encoding": "gzip, deflate",
         "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
     }
-    resp = s.get(url, headers=headers).json()
+    resp = requests.session().get(url, headers=headers).json()
 
     return list(resp)[-1]
 
 
-def get_user(s):
+def get_user(s, openid):
     """
     调用API获取用户的信息
     :return:
@@ -79,7 +80,7 @@ def get_user(s):
         "Accept-Encoding": "gzip, deflate",
         "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
     }
-    url = "https://api.fjg360.cn/index.php?m=vote&c=index&a=get_members&openid=" + config['openid']
+    url = "https://api.fjg360.cn/index.php?m=vote&c=index&a=get_members&openid=" + openid
     resp = s.get(url, headers=headers).json()
     if resp.get("code") == 1:
         print(resp.get("h5_ask_member"))
@@ -113,7 +114,7 @@ def get_course(s, code):
     return course
 
 
-def save_door(info, course, s):
+def upload_study_record(user, info, course, s):
     """
     调用API提交用户进入页面信息至青春湖北数据库
     :param s:
@@ -144,7 +145,7 @@ def save_door(info, course, s):
     url += "&city=" + info["danwei1"]
     url += "&danwei2=" + info["danwei3"]
     url += "&danwei=" + info["danwei2"]
-    url += "&openid=" + config['openid']
+    url += "&openid=" + user['openid']
     url += "&num=10"
     url += "&lesson_name=" + course
     resp = s.get(url, headers=headers).json()
@@ -200,14 +201,13 @@ def get_user_info_pic(course, name, id, company):
     img.save(config['output_dir'] + "personal_info.jpg")
 
 
-def image_processing(course_name, content_img_paths):
-    if config['add_status_bar']:
-        status_img_path = choice(config['status_images'])
-        # TODO: 添加针对不同状态栏高度的适配
-        # 具体: 微信toolbar的高度貌似是一样的?
-        for content_img_path in content_img_paths:
+def image_processing(user, course_name):
+    if user['add_status_bar']:
+        status_img_path = choice(user['status_images'])
+
+        for content_img_path in config['content_images']:
             content_img = Image.open(content_img_path)
-            status_img = add_horizontal_center_text(status_img_path, "“青年大学习”" + course_name, 93, (0, 0, 0), 40)
+            status_img = add_text(user, status_img_path, "“青年大学习”" + course_name, 0, 93, (0, 0, 0), 40, center=True)
             full_img = Image.new('RGB', (828, content_img.size[1] + status_img.size[1]), (255, 255, 255))
 
             full_img.paste(status_img, (0, 0))
@@ -216,29 +216,35 @@ def image_processing(course_name, content_img_paths):
             full_img.save(content_img_path)
 
 
-def add_name(content_image_paths):
-    for content_image_path in content_image_paths:
-        result = add_horizontal_center_text(content_image_path, config['name'], 500, (10, 220, 120), 90)
-        # result.show()
-        result.save(content_image_path)
+def add_name(user):
+    if user['add_text']:
+        for content_image_path in config['content_images']:
+            result = add_text(user, content_image_path, user['text'], user['pos_x'], user['pos_y'],
+                              hex2rgb(user['color']), 90)
+            # result.show()
+            result.save(content_image_path)
+
+
+def hex2rgb(hex_string):
+    r = int(hex_string[1:3], 16)
+    g = int(hex_string[3:5], 16)
+    b = int(hex_string[5:7], 16)
+    return f"({r}, {g}, {b})"
 
 
 def run():
-    images = config['content_images']
+    current_code = get_code()
 
-    s = requests.session()
-    code = get_code(s)
-    user_info = get_user(s)
-    course = get_course(s, code)
-    save_door(user_info, course, s)
-    get_finish_pic(code)
-    get_user_info_pic(course, user_info["name"], user_info["uid"],
-                      user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
-
-    image_processing(course, images)
-
-    if config['add_name']:
-        add_name(images)
+    for user in config['users']:
+        s = requests.session()
+        user_info = get_user(s, user['openid'])
+        course = get_course(s, current_code)
+        upload_study_record(user, user_info, course, s)
+        get_finish_pic(current_code)
+        get_user_info_pic(course, user_info["name"], user_info["uid"],
+                          user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
+        image_processing(user, course)
+        add_name(user)
 
 
 if __name__ == '__main__':

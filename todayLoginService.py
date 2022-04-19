@@ -1,7 +1,6 @@
 import random
 import re
 
-
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 from login.Utils import Utils
@@ -40,7 +39,8 @@ class TodayLoginService:
 
     # 通过学校名称借助api获取学校的登陆url
     def getLoginUrlBySchoolName(self):
-        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False, hooks=dict(response=[Utils.checkStatus])).json()[
+        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False,
+                                   hooks=dict(response=[Utils.checkStatus])).json()[
             'data']
         flag = True
         for item in schools:

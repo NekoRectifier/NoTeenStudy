@@ -15,17 +15,17 @@ delay: [ 1,2 ] # 多用户时，各用户之间任务执行延迟(时间范围�
 users: # ------别误删了这一行------
   - # 信息收集模板=======
     # 通用必填项-------
-    type: 0 # 任务类型[仅支持"信息收集"类 请不要改动]
-    schoolName: 家里蹲大学 # 学校全称
-    username: "202202222" # 学号或者工号
-    password: "xxxxxxxxxxxxxxxxx" # 密码
+    type: 0
+    schoolName: 家里蹲大学                        # 学校全称
+    username: "202202222"                       # 学号或者工号
+    password: "xxxxxxxxxxxxxxxxx"               # 密码
     # 一般需填项-------
     checkTitle: 1 # 是否检查表单的标题（1:检查|0:不检查）
     forms: # 表单信息
       - form:
-          title: 是否在“青春湖北”上完成学习 #标题
-          value: 是 # 如果是多选请用"|"分割值
-          isNeed: 1 # 是否需要提交此问题，必填问题一定要填1(1:提交|0:不提交)
+          title: 是否在“青春湖北”上完成学习          #标题
+          value: 是                              # 如果是多选请用"|"分割值
+          isNeed: 1                             # 是否需要提交此问题，必填问题一定要填1(1:提交|0:不提交)
       - form:
           title: 请上传登录界面截图、完成学习截图
           value:
@@ -38,13 +38,30 @@ users: # ------别误删了这一行------
             # - 2.png
             # - ...
           isNeed: 1
-    # 经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
-    lon: 115.000000 # 经度
-    lat: 50.000000 # 纬度
-    address: "银河系" # 地址信息
+    # 经纬度查询地址（请参考自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
+    lon: 115.000000                             # 经度
+    lat: 50.000000                              # 纬度
+    address: "银河系"                            # 显示在今日校园上的地址信息
+
+    # 青年大学习配置部分 （针对单个用户）
+    openid: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    add_status_bar: true                        # 是否给生成的图片添加状态栏
+    status_bar_images:                          # !注意! 不要写成这样 -> /image/x.jpg
+      - 'image/1_blank.png'
+      - 'image/2_blank.png'
+    add_text: false                             # 是否给最终图片添加文字
+    text: "NoTeenStudy"
+    color: "#FFFFFF"                            # 16进制颜色值
+    font: "NotoSansSC.otf"                      # /font目录下的自定义字体文件名
+    text_size: 40
+    pos_x: 200
+    pos_y: 200
+    # 注意此字体同时用于状态栏上的标题生成和截图上另外添加的文本
+
+
 
 # ======================================================================
-# 青年大学习配置 
+# 青年大学习配置（全局配置）
 # ======================================================================
 
 ######## 此处不要修改,仅调试使用 ########
@@ -55,19 +72,7 @@ content_images:
 ######## 此处不要修改,仅调试使用 ########
 
 ######## 青年大学习图片生成的设定 ########
-openid: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 personal_info_generate_server: 'http://124.222.5.227:8080'
-token: 'xxxxxxxxxxxxxxx' # 网页截屏大师的token
+token: 'xxxxxxxxxxxxxxx'                        # 网页截屏大师的token
 
-######## 添加状态栏图片的设定 ########
-add_status_bar: true
-status_images: # !注意! 不要写成这样 -> /image/x.jpg
-  - 'image/1_blank.png'
-  - 'image/2_blank.png'
-# 想要添加自己的? 直接把图片放到image文件夹下,再在这里添加就可以了
 
-######## 在截图上添加文字设定 ########
-add_name: true # 是否要添加文字
-name: 'NoTeenStudy' # 添加的文字内容
-font: 'NotoSansSC.otf'
-# 注意此字体同时用于状态栏上的标题生成和截图上另外添加的文本
