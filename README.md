@@ -6,7 +6,7 @@
 
 ## :tada: 功能介绍  
 
-- 发送请求模拟青年大学习记录
+- 发送请求模拟青春湖北记录
 - 获取青年大学习完成截图
 - 全自动提交至今日校园平台
 
@@ -27,7 +27,7 @@
 
 ## :sparkles: 致谢
 
-本项目基于[IceTiki的今日校园自动签到项目](https://github.com/IceTiki/ruoli-sign-optimization)和[Samuelli924的青年大学习项目](https://github.com/Samueli924/TeenStudy) 感谢他们的付出。
+本项目基于[IceTiki的今日校园自动签到项目](https://github.com/IceTiki/ruoli-sign-optimization)和[Samuelli924的青年大学习项目](https://github.com/Samueli924/TeenStudy)，感谢他们的付出。
 
 ## :warning: 免责声明
 
