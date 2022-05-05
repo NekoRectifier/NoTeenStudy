@@ -7,7 +7,7 @@ import requests
 
 data = {
     'url': 'http://124.222.5.227:8080?course=123456',
-    'token': '621cf77a17aae',
+    'token': '#your screenmaster api token#',
     'width': '828',
     'height': '1366',
     'delay': '50',
