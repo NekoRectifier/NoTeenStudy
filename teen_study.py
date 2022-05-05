@@ -1,3 +1,5 @@
+# original-author: https://github.com/Samueli924/TeenStudy
+
 import requests
 import requests.utils
 import yaml
