@@ -2,6 +2,7 @@ import requests
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
+from email.utils import formataddr
 import re
 from urllib import parse
 import json
@@ -15,9 +16,11 @@ class SendMessage:
         self.qmsg = Qmsg(con.get('qmsg_key'), con.get(
             'qmsg_qq'), con.get('qmsg_isGroup'))
         self.smtp = Smtp(con.get('smtp_host'), con.get('smtp_user'),
-                         con.get('smtp_key'), con.get('smtp_sender'), con.get('smtp_receivers'))
+                         con.get('smtp_key'), con.get('smtp_sender'),
+                         con.get('smtp_senderName'), con.get('smtp_receivers'))
         self.rl = RlMessage(con.get('rl_email'),
                             con.get('rl_emailApiUrl'))
+        self.iceCream = IceCream(con.get('iceCream_token'))
         self.pp = Pushplus(con.get('pushplus_parameters'),
                            con.get('pushplus_isNew'))
         self.log_str = '推送情况\n'
@@ -26,19 +29,23 @@ class SendMessage:
         try:
             self.log_str += '\nQMSG酱|' + self.qmsg.send(msg)
         except Exception as e:
-            self.log_str += '\nQMSG酱|推送失败|%s' % e
+            self.log_str += '\nQMSG酱|出错|%s' % e
         try:
             self.log_str += '\nSMTP|' + self.smtp.sendmail(msg, title)
         except Exception as e:
-            self.log_str += '\nSMTP|推送失败|%s' % e
+            self.log_str += '\nSMTP|出错|%s' % e
         try:
             self.log_str += '\n若离邮箱API|' + self.rl.sendMail(msg, title)
         except Exception as e:
-            self.log_str += '\n若离邮箱API|推送失败|%s' % e
+            self.log_str += '\n若离邮箱API|出错|%s' % e
+        try:
+            self.log_str += '\nIceCream|' + self.iceCream.send(msg)
+        except Exception as e:
+            self.log_str += '\nIceCream|出错|%s' % e
         try:
             self.log_str += '\nPushplus|' + self.pp.sendPushplus(msg, title)
         except Exception as e:
-            self.log_str += '\nPushplus|消息推送失败|%s' % e
+            self.log_str += '\nPushplus|出错|%s' % e
 
 
 class RlMessage:
@@ -74,7 +81,7 @@ class RlMessage:
             res = res.json()
             return res['message']
         else:
-            return '邮箱或邮件api填写无效，已取消发送邮件！'
+            return '无效配置'
 
 
 class Pushplus:
@@ -129,7 +136,7 @@ class Pushplus:
             else:
                 return "发送失败"
         else:
-            return 'pushplus的令牌填写错误，已取消发送！'
+            return '无效配置'
 
 
 class Qmsg:
@@ -169,7 +176,7 @@ class Qmsg:
             msg = msg.replace(i, k)
         # 简单检查配置
         if not self.configIsCorrect:
-            return('Qmsg配置错误，信息取消发送')
+            return('无效配置')
         else:
             # 开始推送
             sendtype = 'group/' if self.isGroup else 'send/'
@@ -181,7 +188,7 @@ class Qmsg:
 class Smtp:
     '''Smtp发送类'''
 
-    def __init__(self, host: str, user: str, key: str, sender: str, receivers: list):
+    def __init__(self, host: str, user: str, key: str, sender: str, senderName: str, receivers: list):
         """
         :param host: SMTP的域名
         :param user: 用户名
@@ -193,6 +200,7 @@ class Smtp:
         self.user = user
         self.key = key
         self.sender = sender
+        self.senderName = senderName
         self.receivers = receivers
         self.configIsCorrect = self.isCorrectConfig()
 
@@ -214,15 +222,50 @@ class Smtp:
         :param msg: 要发送的消息(自动转为字符串类型)
         :param title: 邮件标题(自动转为字符串类型)"""
         msg = str(msg)
+        msg = msg.replace("\n", "</br>")
         title = str(title)
         if not self.configIsCorrect:
-            return '邮件配置出错'
+            return '无效配置'
         else:
-            mail = MIMEText(msg, 'plain', 'utf-8')
+            mail = MIMEText(msg, 'html', 'utf-8')
             mail['Subject'] = Header(title, 'utf-8')
-
-            smtpObj = smtplib.SMTP()
-            smtpObj.connect(self.host, 25)
+            mail['From'] = formataddr((self.senderName, self.sender), "utf-8")
+            smtpObj = smtplib.SMTP_SSL(self.host, 465)
             smtpObj.login(self.user, self.key)
             smtpObj.sendmail(self.sender, self.receivers, mail.as_string())
             return("邮件发送成功")
+
+
+class IceCream:
+    """IceCream发送类"""
+
+    def __init__(self, token: str):
+        """
+        :param key: IceCream密钥
+        """
+        self.token = token
+        self.configIsCorrect = self.isCorrectConfig()
+
+    def isCorrectConfig(self):
+        """简单检查配置是否合法"""
+        if type(self.token) != str:
+            return 0
+        elif not re.match('^[0-9A-F]{32}$', self.token):
+            return 0
+        else:
+            return 1
+
+    def send(self, msg):
+        """发送消息
+        :param msg: 要发送的消息(自动转为字符串类型)
+        """
+        # msg处理
+        msg = str(msg)
+        # 简单检查配置
+        if not self.configIsCorrect:
+            return('无效配置')
+        else:
+            # 开始推送
+            res = requests.post(
+                url=f'https://ice.ruoli.cc/api/send/{self.token}', data={'msg': msg})
+            return str(res.json()['msg'])

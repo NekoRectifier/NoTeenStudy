@@ -1,13 +1,14 @@
 import random
 import re
 
+
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 from login.Utils import Utils
 from login.casLogin import casLogin
 from login.iapLogin import iapLogin
 from login.RSALogin import RSALogin
-from liteTools import TaskError
+from liteTools import TaskError, LL
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -17,7 +18,7 @@ class TodayLoginService:
     def __init__(self, userInfo):
         if None == userInfo['username'] or '' == userInfo['username'] or None == userInfo['password'] or '' == userInfo[
             'password'] or None == userInfo['schoolName'] or '' == userInfo['schoolName']:
-            raise TaskError('初始化类失败，请键入完整的参数（用户名，密码，学校名称）')
+            raise TaskError('初始化类失败，请键入完整的参数（用户名，密码，学校名称）', 301)
         self.username = userInfo['username']
         self.password = userInfo['password']
         self.schoolName = userInfo['schoolName']
@@ -39,14 +40,15 @@ class TodayLoginService:
 
     # 通过学校名称借助api获取学校的登陆url
     def getLoginUrlBySchoolName(self):
-        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False,
-                                   hooks=dict(response=[Utils.checkStatus])).json()[
+        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False, hooks=dict(response=[Utils.checkStatus])).json()[
             'data']
         flag = True
         for item in schools:
             if item['name'] == self.schoolName:
-                if item['joinType'] == 'NONE':
-                    raise TaskError(self.schoolName + '未加入今日校园，请检查...')
+                if item['joinType'] == 'NONE': 
+                    raise TaskError(self.schoolName + '未加入今日校园，请检查...', 301)
+                elif item['joinType'] == 'NOTCLOUD':
+                    LL.log(2, "学校接入今日校园方式为NOTCLOUD")
                 flag = False
                 params = {
                     'ids': item['id']

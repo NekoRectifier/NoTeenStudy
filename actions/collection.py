@@ -4,14 +4,14 @@ import os
 from requests_toolbelt import MultipartEncoder
 
 from todayLoginService import TodayLoginService
-from liteTools import LL, DT, RT, MT, TaskError, CpdailyTools
+from liteTools import LL, DT, RT, MT, ST, SuperString, TaskError, CpdailyTools
 
 
 class Collection:
     # 初始化信息收集类
-    def __init__(self, todaLoginService: TodayLoginService, userInfo):
-        self.session = todaLoginService.session
-        self.host = todaLoginService.host
+    def __init__(self, userInfo, userSession, userHost):
+        self.session = userSession
+        self.host = userHost
         self.userInfo = userInfo
         self.task = None
         self.wid = None
@@ -24,11 +24,11 @@ class Collection:
     # 保存图片
     def savePicture(self, picSize, picNumber, ossKey):
         url = f'{self.host}wec-counselor-collector-apps/stu/collector/saveAttachment'
-        attachName = '图片-' + str(picNumber).rjust(2, '0')
+        attachName = '图片-{:0>2d}'.format(picNumber)
         params = {'attachmentSize': picSize,
                   'ossKey': ossKey, "attachName": attachName}
-        res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps(params),
-                                verify=False)
+        self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps(params),
+                          verify=False)
 
     # 查询表单
     def queryForm(self):
@@ -58,19 +58,18 @@ class Collection:
                 totalSize = res['datas']['totalSize']
                 # 如果没有获取到历史任务则报错
                 if totalSize == 0:
-                    LL.log(2, "没有获取到信息收集任务")
-                    raise TaskError("没有获取到信息收集任务")
+                    raise TaskError("没有获取到信息收集任务", 400)
             # 按页中任务遍历
             for task in res['datas']['rows']:
                 if self.userInfo.get('title'):
                     # 如果任务需要匹配标题
-                    if not re.search(self.userInfo['title'], task["subject"]):
+                    taskTitle = SuperString(self.userInfo['title'])
+                    if not taskTitle.match(task["subject"]):
                         # 跳过标题不匹配的任务
                         continue
                     if self.userInfo.get('signLevel') == 1 and task['isHandled'] == 1:
                         # 如果仅填报"未填报的任务"且相应任务已被填报，则报错
-                        LL.log(2, f"收集任务({task['subject']})已经被填报")
-                        raise TaskError(f"收集任务({task['subject']})已经被填报")
+                        raise TaskError(f"收集任务『{task['subject']}』已经被填报", 100)
                 else:
                     # 如果不需要匹配标题，则获取第一个任务
                     if self.userInfo.get('signLevel') == 1 and task['isHandled'] == 1:
@@ -88,6 +87,7 @@ class Collection:
                 res = self.session.post(
                     url, headers=headers, data=json.dumps(params), verify=False)
                 res = DT.resJsonEncode(res)
+                LL.log(1, '查询任务详情返回结果', res['datas'])
                 try:
                     self.schoolTaskWid = res['datas']['collector']['schoolTaskWid']
                 except TypeError:
@@ -100,11 +100,10 @@ class Collection:
                 res = self.session.post(
                     url, headers=headers, data=json.dumps(params), verify=False)
                 res = DT.resJsonEncode(res)
-                LL.log(1, '查询任务详情返回结果', res['datas'])
+                LL.log(1, '查询任务表单返回结果', res['datas'])
                 self.task = res['datas']['rows']
                 return
-        LL.log(1, "没有获取到合适的信息收集任务")
-        raise TaskError("没有获取到合适的信息收集任务")
+        raise TaskError("没有获取到合适的信息收集任务", 400)
 
     # 获取历史签到任务详情
     def getHistoryTaskInfo(self):
@@ -132,8 +131,7 @@ class Collection:
                 totalSize = res['datas']['totalSize']
                 # 如果没有获取到历史任务则报错
                 if totalSize < 0:
-                    LL.log(2, "没有获取到历史任务")
-                    raise TaskError("没有获取到历史任务")
+                    raise TaskError(f"『{self.taskName}』没有获取到历史任务", 301)
             # 按页中任务遍历
             for task in res['datas']['rows']:
                 if task['isHandled'] == 1 and task['formWid'] == self.formWid:
@@ -205,8 +203,7 @@ class Collection:
                     self.historyTaskData['form'] = form
                     return self.historyTaskData
         # 如果没有获取到历史信息收集则报错
-        LL.log(2, "没有找到匹配的历史任务")
-        raise TaskError("没有找到匹配的历史任务")
+        raise TaskError(f"『{self.taskName}』没有找到匹配的历史任务", 301)
 
     # 填写表单
 
@@ -224,36 +221,65 @@ class Collection:
             self.form["longitude"] = self.userInfo['lon']
             self.form['instanceWid'] = self.instanceWid
         else:
+            # ---初始化用户表单---
             task_form = []
+            taskLen = len(self.task)
+            userFormList = self.userInfo['forms']
+            userFormList = [u['form'] for u in userFormList]
+            # 如果是用"number"控制表单填报(number是题号, 1开始), 转换为用"isNeed"控制表单填报
+            userFormSortIndex = {}
+            for u in userFormList:
+                # 检查是否每一项都有"number"项
+                if "number" in u:
+                    userFormSortIndex[u['number']] = {
+                        "title": u['title'], "value": u['value'], "isNeed": 1}
+                else:
+                    break
+            else:
+                '''如果每一项都有"number"项'''
+                userFormList = []
+                for i in range(taskLen):
+                    userFormList.append(
+                        userFormSortIndex.get(i+1, {"isNeed": 0}))
             # 检查用户配置长度与查询到的表单长度是否匹配
-            if len(self.task) != len(self.userInfo['forms']):
-                raise Exception('用户只配置了%d个问题，查询到的表单有%d个问题，不匹配！' % (
-                    len(self.userInfo['forms']), len(self.task)))
-            for formItem, userForm in zip(self.task, self.userInfo['forms']):
-                userForm = userForm['form']
+            if taskLen != len(userFormList):
+                raise Exception('用户配置了%d个问题，查询到的表单有%d个问题，不匹配！' %
+                                (len(userFormList)), taskLen)
+
+            # ---开始填充表单---
+            for formItem, userForm in zip(self.task, userFormList):
+                formItem['formType'] = '0'
+                formItem['sortNum'] = str(formItem['sort'])
                 # 根据用户配置决定是否要填此选项
                 if userForm['isNeed'] == 1:
+                    '''用户需要填此项'''
                     # 判断用户是否需要检查标题
                     if self.userInfo['checkTitle'] == 1:
                         # 如果检查到标题不相等
-                        if formItem['title'] != userForm['title']:
+                        userFormTitle = SuperString(userForm['title'])
+                        if not userFormTitle.match(formItem['title']):
                             raise Exception(
-                                f'\r\n有配置项的标题不正确\r\n您的标题为：{userForm["title"]}\r\n系统的标题为：{formItem["title"]}')
+                                f'\r\n有配置项的标题不匹配\r\n您的标题为：『{userFormTitle}』\r\n系统的标题为：『{formItem["title"]}』')
                     # 填充多出来的参数（新版增加了三个参数，暂时不知道作用）
                     formItem['show'] = True
-                    formItem['formType'] = '0'  # 盲猜是任务类型、待确认
-                    formItem['sortNum'] = str(formItem['sort'])  # 盲猜是sort排序
                     # 开始填充表单
-                    # 文本选项直接赋值
-                    if formItem['fieldType'] in ('1', '5', '6', '7'):
-                        formItem['value'] = userForm['value']
-                    # 单选框填充
+                    # 文本类型
+                    if formItem['fieldType'] in ('1', '5', '6', '7', '11', '12'):
+                        '''
+                        6: 时间选择
+                        7: 地址选择
+                        11: 手机号
+                        12: 身份证
+                        '''
+                        formItem['value'] = str(SuperString(userForm['value']))
+                    # 单选类型
                     elif formItem['fieldType'] == '2':
                         # 定义单选框的wid
                         itemWid = ''
                         # 单选需要移除多余的选项
                         for fieldItem in formItem['fieldItems'].copy():
-                            if fieldItem['content'] != userForm['value']:
+                            userFormValue = SuperString(userForm['value'])
+                            if not userFormValue.match(fieldItem['content']):
                                 formItem['fieldItems'].remove(fieldItem)
                             else:
                                 itemWid = fieldItem['itemWid']
@@ -262,39 +288,45 @@ class Collection:
                                 f'\r\n{userForm}配置项的选项不正确，该选项为单选，且未找到您配置的值'
                             )
                         formItem['value'] = itemWid
-                    # 多选填充
+                    # 多选类型
                     elif formItem['fieldType'] == '3':
                         # 定义单选框的wid
                         itemWidArr = []
-                        userItems = userForm['value']
+                        userItems = [SuperString(i)for i in userForm['value']]
                         # 多选也需要移除多余的选项
                         for fieldItem in formItem['fieldItems'].copy():
-                            if fieldItem['content'] in userItems:
-                                # formItem['value'] += fieldItem['content'] + ' ' # 这句不知道有什么用
-                                itemWidArr.append(fieldItem['itemWid'])
+                            # 查看该表单项在不在用户配置的选项中
+                            for i in userItems:
+                                if i.match(fieldItem['content']):
+                                    itemWidArr.append(fieldItem['itemWid'])
+                                    break
                             else:
                                 formItem['fieldItems'].remove(fieldItem)
                         # 若多选一个都未选中
                         if len(itemWidArr) == 0:
                             raise Exception(
-                                f'\r\n{userForm}配置项的选项不正确，该选项为多选，且未找到您配置的值'
+                                f'『{userForm}』配置项的选项不正确，该选项为多选，且未找到您配置的值'
                             )
                         formItem['value'] = ','.join(itemWidArr)
-                    # 图片（健康码）上传类型
-                    elif formItem['fieldType'] == '4':
-                        # 如果是传图片的话，那么是将图片的地址（相对/绝对都行）存放于此value中
-                        dirList = userForm['value']
+                    # 图片类型
+                    elif formItem['fieldType'] in ('4', '16'):
+                        '''
+                        4: 上传图片
+                        16: 手写板
+                        '''
                         # 序列/字符串转列表
-                        dirList = DT.formatStrList(dirList)
+                        dirList = DT.formatStrList(userForm['value'])
                         # 检查列表长度
                         dirListLen = len(dirList)
-                        if dirListLen > 10 or dirListLen == 0:
-                            raise TaskError(f'配置中填写的图片路径({dirListLen})过多')
+                        if dirListLen == 0:
+                            raise TaskError(f'请在配置中填写图片路径', 301)
+                        elif dirListLen > 10:
+                            raise TaskError(
+                                f'配置中填写的图片路径({dirListLen}个)过多', 301)
                         # 将列表中的每一项都加入到value中
                         imgUrlList = []
                         for i, pic in enumerate(dirList, 1):
-                            picBlob, picType = RT.choicePhoto(
-                                pic, dirTimeFormat=True)
+                            picBlob, picType = RT.choicePhoto(pic)
                             # 上传图片
                             url_getUploadPolicy = f'{self.host}wec-counselor-collector-apps/stu/obs/getUploadPolicy'
                             ossKey = CpdailyTools.uploadPicture(
@@ -329,11 +361,16 @@ class Collection:
 
                     else:
                         raise Exception(
-                            f'\r\n{userForm}配置项属于未知配置项，请反馈'
+                            f'\n出现未知表单类型，请反馈『{formItem}』'
                         )
                     task_form.append(formItem)
                 else:
-                    pass
+                    '''用户不需要填此项'''
+                    formItem['show'] = False
+                    formItem['value'] = ''
+                    if 'fieldItems' in formItem:
+                        formItem['fieldItems'].clear()
+                    task_form.append(formItem)
 
             self.form["form"] = task_form
             self.form["formWid"] = self.formWid
@@ -402,4 +439,15 @@ class Collection:
         data = self.session.post(
             submitUrl, headers=headers, data=json.dumps(self.submitData), verify=False)
         data = DT.resJsonEncode(data)
+        # 检查签到完成
+        url = f'{self.host}wec-counselor-collector-apps/stu/collector/detailCollector'
+        params = {"collectorWid": self.wid,
+                  "instanceWid": self.instanceWid}
+        res = self.session.post(
+            url, headers=headers, data=json.dumps(params), verify=False)
+        res = DT.resJsonEncode(res)
+        if res['datas']['collector']['isUserSubmit'] == 1:
+            self.userInfo['taskStatus'].code = 101
+        else:
+            raise TaskError(f'『{self.taskName}』提交表单返回『{data}』且任务状态仍是未签到', 300)
         return '[%s]%s' % (data['message'], self.taskName)
