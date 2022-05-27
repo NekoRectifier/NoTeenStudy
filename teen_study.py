@@ -205,7 +205,7 @@ def get_user_info_pic(course, name, id, company):
 
 def image_processing(user, course_name):
     if user['add_status_bar']:
-        status_img_path = choice(user['status_images'])
+        status_img_path = choice(user['status_bar_images'])
 
         for content_img_path in config['content_images']:
             content_img = Image.open(content_img_path)

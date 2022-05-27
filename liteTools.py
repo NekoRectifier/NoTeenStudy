@@ -16,6 +16,7 @@ import imghdr
 from requests_toolbelt import MultipartEncoder
 import datetime
 
+
 class TaskError(Exception):
     '''目前(配置/时间/签到情况)不宜完成签到任务，出现本异常不进行重试。'''
 
@@ -96,7 +97,7 @@ class TT:
 
 class LL:
     '''lite log'''
-    #prefix = checkRepositoryVersion.checkCodeVersion()
+    # prefix = checkRepositoryVersion.checkCodeVersion()
     prefix = 'NekoRect_Modified_2022/05/27'
     startTime = TT.startTime
     log_list = []
