@@ -21,7 +21,8 @@ def add_text(user, img_path, text, x=100, y=100, color=(230, 230, 230), size=40,
     font = Font.truetype("font/" + user['font'], size, encoding='utf-8')
     if center:
         x = int((image.size[0] - font.getsize(text)[0]) / 2)
-    draw.text((x, y), text, color, font=font)
+    draw.text((x, y), text, "rgb"+str(color), font=font)
+    # image.show()
     return image
 
 

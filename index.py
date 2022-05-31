@@ -18,5 +18,11 @@ def main_handler(event, context):
     return 'ok'
 
 
+def handler(event, context):
+    # 阿里云入口函数
+    main()
+    return 'ok'
+
+
 if __name__ == '__main__':
     main()

@@ -133,7 +133,7 @@ users: # ------别误删了这一行------
     font: "NotoSansSC.otf" # /font目录下的自定义字体文件名
     text_size: 40
     pos_x: 200
-    pos_y: 200
+    pos_y: 400
     # 注意此字体同时用于状态栏上的标题生成和截图上另外添加的文本
 
 
