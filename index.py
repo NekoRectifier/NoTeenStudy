@@ -3,13 +3,20 @@ import sys
 from importlib import util
 import teen_study
 import ruoli_opt
+import yaml
 
 
 def main():
     # 主函数
     os.environ['TZ'] = "Asia/Shanghai"  # 将时区设为UTC+8
-    teen_study.run()
-    ruoli_opt.main()
+
+    with open('config.yml', 'r', encoding='utf-8') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
+    for user in config['users']:
+        teen_study.run(user=user)
+        ruoli_opt.main(user)  # 待修改
+
 
 
 def main_handler(event, context):

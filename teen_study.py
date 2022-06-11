@@ -21,7 +21,7 @@ def add_text(user, img_path, text, x=100, y=100, color=(230, 230, 230), size=40,
     font = Font.truetype("font/" + user['font'], size, encoding='utf-8')
     if center:
         x = int((image.size[0] - font.getsize(text)[0]) / 2)
-    draw.text((x, y), text, "rgb"+str(color), font=font)
+    draw.text((x, y), text, "rgb" + str(color), font=font)
     # image.show()
     return image
 
@@ -235,19 +235,18 @@ def hex2rgb(hex_string):
     return f"({r}, {g}, {b})"
 
 
-def run():
+def run(user):
     current_code = get_code()
+    s = requests.session()
 
-    for user in config['users']:
-        s = requests.session()
-        user_info = get_user(s, user['openid'])
-        course = get_course(s, current_code)
-        upload_study_record(user, user_info, course, s)
-        get_finish_pic(current_code)
-        get_user_info_pic(course, user_info["name"], user_info["uid"],
-                          user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
-        image_processing(user, course)
-        add_name(user)
+    user_info = get_user(s, user['openid'])
+    course = get_course(s, current_code)
+    upload_study_record(user, user_info, course, s)
+    get_finish_pic(current_code)
+    get_user_info_pic(course, user_info["name"], user_info["uid"],
+                      user_info["danwei1"] + user_info["danwei2"] + user_info["danwei3"])
+    image_processing(user, course)
+    add_name(user)
 
 
 if __name__ == '__main__':
