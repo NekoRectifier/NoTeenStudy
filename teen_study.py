@@ -32,7 +32,7 @@ def show_exit(content):
     :param content:
     :return:
     """
-    input(content)
+    print(content)
     exit()
 
 
